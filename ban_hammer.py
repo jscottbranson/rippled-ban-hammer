@@ -31,14 +31,8 @@ def websocket_command():
         SOCKET_ADDRESS,
         sslopt={"cert_reqs": ssl.CERT_NONE}  # Comment to enable SSL verification
     )
-    socket.send(
-        json.dumps(
-            {
-                "command": "peers",
-            }
-        )
-    )
-    message = json.loads(socket.recv())['result']['peers']
+    socket.send(json.dumps({"command": "peers"}))
+    message = socket.recv()
     socket.close()
     return message
 
@@ -48,7 +42,7 @@ def insane_peers():
     This should probably also identify if IP is IPv4 or IPv6.
     '''
     bad_peers = []
-    peers = websocket_command()
+    peers = json.loads(websocket_command())['result']['peers']
     for i in peers:
         if 'sanity' in i:
             if i['sanity'] in ["insane", "unknown"] and i['uptime'] >= BLOCK_AFTER_TIME:
@@ -63,7 +57,8 @@ def ip_rules():
     stamp = timestamp()
     with open(IP_TABLES_SCRIPT, 'a') as script:
         for i in bad_peers:
-            script.write("\niptables -I INPUT -s " + i
+            script.write("\niptables -I INPUT -s "
+                         + i
                          + " -m state --state NEW,ESTABLISHED,RELATED -j DROP # Added: "
                          + stamp)
     script.close()
