@@ -1,9 +1,9 @@
-#rippled Ban Hammer: Ban deviant peers from rippled servers
+# rippled Ban Hammer: Ban deviant peers from rippled servers
 This script uses `iptables` to block rippled peers whose `sanity` is `insane` or `unknown`. This is useful for hub operators who do not want connection slots used by peers that are not on the main net.
 
 Specifically, the script uses a websocket request to query `rippled` for `peers`. Peers that are `insane` or whose sanity is `unknown` are appended to an external shell script (in the form of iptables rules), so they can be reviewed.
 
-##Running the Script
+## Running the Script
 This script requires the `websocket-client` package, which can be installed via pip: `pip install websocket-client`.
 
 Modify the following variables in the `ban_hammer.py` file:
@@ -13,15 +13,16 @@ Modify the following variables in the `ban_hammer.py` file:
 
 After setting the variables, run the `ban_hammer.py` file.
 
-##Limitations
+## Limitations
 - This script only works with IPv4 addresses. Eventually, it would be lovely to add IPv6 functionality.
 - This script runs a shell script with the iptables rules. Using a python script to run a shell script could have security implications, particularly since iptables rules must be run as root. It is easy for a user to disable running the script, and it can be run manually instead.
 
-##License
+## License
 Anyone is free to use, modify, and distribute these scripts.
 
-##About Me
+## About Me
 Visit me at [https://rabbitkick.club] or on Twitter [@rabbitkickclub].
+
 
 [https://rabbitkick.club]:https://rabbitkick.club
 [@rabbitkickclub]:https://twitter.com/rabbitkickclub
