@@ -15,6 +15,7 @@ from websocket import create_connection
 SOCKET_ADDRESS = "wss://127.0.0.1:6006"  # Websocket address
 BLOCK_AFTER_TIME = 1800  # Only ban peers connected longer than this
 IP_TABLES_SCRIPT = "rippled_iptables.sh"  # Where to write iptables rules
+WHITELIST = [] # IPs that should never be blocked
 
 
 def timestamp():
@@ -36,32 +37,58 @@ def websocket_command():
     socket.close()
     return message
 
+def ip_type(address):
+    '''
+    Determine if address is IPv4 or IPv6 and parse accordingly.
+    '''
+    stamp = timestamp()
+
+    if address[0:8] == "[::ffff:":
+        address = address.split("[::ffff:")[1].split("]")[0]
+        if address not in WHITELIST:
+            rule = str("\niptables -I INPUT -s "
+                       + address
+                       + " -j DROP # Added "
+                       + stamp)
+
+    elif address[0] == "[":
+        address = address.split("]:")[0]
+        if address not in WHITELIST:
+            rule = str("\nip6tables -I INPUT -s "
+                       + address
+                       + " -j DROP # Added: "
+                       + stamp)
+
+    else:
+        address = address.split(":")[0]
+        if address not in WHITELIST:
+            rule = str("\niptables -I INPUT -s "
+                       + address
+                       + " -j DROP # Added: "
+                       + stamp)
+    return rule
+
 def insane_peers():
     '''
     Parse `peers` response to identify insane peers IP addresses.
-    This should probably also identify if IP is IPv4 or IPv6.
     '''
-    bad_peers = []
+    rules = []
     peers = json.loads(websocket_command())['result']['peers']
     for i in peers:
         if 'sanity' in i:
             if i['sanity'] in ["insane", "unknown"] and i['uptime'] >= BLOCK_AFTER_TIME:
-                bad_peers.append(i['address'].split(":")[0])
-    return bad_peers
+                rules.append(ip_type(i['address']))
+    return rules
 
-def ip_rules():
+def iptables():
     '''
-    Output bad IPs to a bash script.
+    Output iptables rules to a bash script & run the script.
     '''
-    bad_peers = insane_peers()
-    stamp = timestamp()
+    rules = insane_peers()
     with open(IP_TABLES_SCRIPT, 'a') as script:
-        for i in bad_peers:
-            script.write("\niptables -I INPUT -s "
-                         + i
-                         + " -m state --state NEW,ESTABLISHED,RELATED -j DROP # Added: "
-                         + stamp)
+        for i in rules:
+            script.write(i)
     script.close()
     subprocess.call("bash " + IP_TABLES_SCRIPT, shell=True)
 
-ip_rules()
+iptables()
