@@ -15,6 +15,7 @@ from websocket import create_connection
 SOCKET_ADDRESS = "wss://127.0.0.1:6006"  # Websocket address
 BLOCK_AFTER_TIME = 1800  # Only ban peers connected longer than this
 IP_TABLES_SCRIPT = "rippled_iptables.sh"  # Where to write iptables rules
+RUN_BASH_SCRIPT = True
 WHITELIST = [] # IPs that should never be blocked
 
 
@@ -89,6 +90,8 @@ def iptables():
         for i in rules:
             script.write(i)
     script.close()
-    subprocess.call("bash " + IP_TABLES_SCRIPT, shell=True)
-
+    if RUN_BASH_SCRIPT == True:
+        subprocess.call("bash " + IP_TABLES_SCRIPT, shell=True)
+    else:
+        print("Rules written to bash script " + IP_TABLES_SCRIPT)
 iptables()
