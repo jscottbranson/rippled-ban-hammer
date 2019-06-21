@@ -43,7 +43,7 @@ def ip_type(address):
     Determine if address is IPv4 or IPv6 and parse accordingly.
     '''
     stamp = timestamp()
-    rule = "White listed address ignored: "
+    rule = "# White listed address ignored: "
 
     if address[0:8] == "[::ffff:":
         address = address.split("[::ffff:")[1].split("]")[0]
