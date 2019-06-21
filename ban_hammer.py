@@ -97,7 +97,7 @@ def iptables():
         for i in rules:
             script.write(i)
     script.close()
-    if RUN_BASH_SCRIPT == True:
+    if RUN_BASH_SCRIPT is True:
         subprocess.call("bash " + IP_TABLES_SCRIPT, shell=True)
     else:
         print("Rules written to bash script " + IP_TABLES_SCRIPT)
