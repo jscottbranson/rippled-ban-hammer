@@ -11,6 +11,7 @@ Modify the following variables in the `ban_hammer.py` file:
 - `BLOCK_AFTER_TIME`: The time in seconds (as an integer) that a peer should be connected before it is booted. Peers that are starting can take some time to sync, so we don't want to be premature in our hammering. 30 minutes (1800 seconds) is likely a good compromise.
 - `IP_TABLES_SCRIPT`: The file to write the iptables bash script. Right now, this script will be run automatically.
 - `WHITELIST`: List of IPv4 and IPv6 addresses (as strings) that should never be banned. IPv6 addresses should not be surrounded by brackets.
+- `RUN_SCRIPT`: if `True`, then the iptables rules that were written will be run.
 
 After setting the variables, run the `ban_hammer.py` file.
 

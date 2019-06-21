@@ -17,6 +17,8 @@ BLOCK_AFTER_TIME = 1800  # Only ban peers connected longer than this
 IP_TABLES_SCRIPT = "rippled_iptables.sh"  # Where to write iptables rules
 WHITELIST = [] # IPs that should never be blocked
 
+RUN_SCRIPT = True
+
 
 def timestamp():
     '''
@@ -42,6 +44,7 @@ def ip_type(address):
     Determine if address is IPv4 or IPv6 and parse accordingly.
     '''
     stamp = timestamp()
+    rule = "White listed address ignored: "
 
     if address[0:8] == "[::ffff:":
         address = address.split("[::ffff:")[1].split("]")[0]
@@ -50,6 +53,8 @@ def ip_type(address):
                        + address
                        + " -j DROP # Added "
                        + stamp)
+        else:
+            rule = rule + address
 
     elif address[0] == "[":
         address = address.split("]:")[0]
@@ -58,6 +63,8 @@ def ip_type(address):
                        + address
                        + " -j DROP # Added: "
                        + stamp)
+        else:
+            rule = rule + address
 
     else:
         address = address.split(":")[0]
@@ -66,6 +73,8 @@ def ip_type(address):
                        + address
                        + " -j DROP # Added: "
                        + stamp)
+        else:
+            rule = rule + address
     return rule
 
 def insane_peers():
@@ -89,6 +98,7 @@ def iptables():
         for i in rules:
             script.write(i)
     script.close()
-    subprocess.call("bash " + IP_TABLES_SCRIPT, shell=True)
+    if RUN_SCRIPT == True:
+        subprocess.call("bash " + IP_TABLES_SCRIPT, shell=True)
 
 iptables()
