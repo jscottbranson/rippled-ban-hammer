@@ -17,8 +17,6 @@ BLOCK_AFTER_TIME = 1800  # Only ban peers connected longer than this
 IP_TABLES_SCRIPT = "rippled_iptables.sh"  # Where to write iptables rules
 WHITELIST = [] # IPs that should never be blocked
 
-RUN_SCRIPT = True
-
 
 def timestamp():
     '''
@@ -98,7 +96,6 @@ def iptables():
         for i in rules:
             script.write(i)
     script.close()
-    if RUN_SCRIPT == True:
-        subprocess.call("bash " + IP_TABLES_SCRIPT, shell=True)
+    subprocess.call("bash " + IP_TABLES_SCRIPT, shell=True)
 
 iptables()
